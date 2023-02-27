@@ -1,8 +1,9 @@
-# CS620 Custom Shell Program
+# CS620 Custom UNIX Shell Program
 
-> Welcome to the CS620 Custom Shell Program! This is a command-line interface program that implements internal
-> calls such as exit, cd, and pwd. The program is inspired by the Kali linux terminal and provides detailed error
-> reporting for permission and incorrect usages.
+> This is a CLI that implements internal calls such as exit, cd, and pwd. 
+> The program is inspired by the Kali linux terminal and provides detailed error
+> reporting for permission and incorrect usages. As well as general error reporting
+> for incorrect usage.
 
 ## Compilation
 
@@ -15,6 +16,8 @@
 > Example run usage:
 > ```
 > ./myshell [BIN_DIR]
+> 
+> ./myhistory [BIN_DIR]
 > ```
 > * Note: The binary directory path(BIN_DIR) is optional. And defaults to /usr/bin
 
