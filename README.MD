@@ -19,7 +19,7 @@
 > 
 > ./myhistory [BIN_DIR]
 > ```
-> * Note: The binary directory path(BIN_DIR) is optional. And defaults to /usr/bin
+> * Note: The binary directory path(BIN_DIR) is optional. And defaults to `/usr/bin`.
 
 ## Usage
 
