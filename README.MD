@@ -1,12 +1,26 @@
 # CS620 Custom Shell Program
 
-> Welcome to the CS620 Custom Shell Program! This is a command-line interface program that implements internal 
-> calls such as exit, cd, and pwd. The program is inspired by the Kali linux terminal and provides detailed error 
+> Welcome to the CS620 Custom Shell Program! This is a command-line interface program that implements internal
+> calls such as exit, cd, and pwd. The program is inspired by the Kali linux terminal and provides detailed error
 > reporting for permission and incorrect usages.
+
+## Compilation
+
+> To compile, use Make with the provided Makefile:
+> ````
+> make myshell
+> 
+> make myhistory
+> ````
+> Example run usage:
+> ```
+> ./myshell [BIN_DIR]
+> ```
+> * Note: The binary directory path(BIN_DIR) is optional. And defaults to /usr/bin
 
 ## Usage
 
->To run the program, simply run the myShell executable file in the command line: `./myShell`
+> To run the program, simply run the myShell executable file in the command line: `./myShell`
 > Once inside the program, you can enter commands as you would in a regular shell. For example:
 >```
 > ┌──(Jett@unix)-《~》
