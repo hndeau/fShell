@@ -12,8 +12,6 @@
 
 #include <sys/utsname.h>
 
-#include <errno.h>
-
 #define MAX_PATH_LENGTH 1024
 
 char input_buffer[80];
