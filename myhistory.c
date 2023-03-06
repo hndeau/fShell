@@ -14,21 +14,30 @@
 char input_buffer[80];
 char history_buffer[10][80];
 int history_index = 0;
-
+char *binary_path;
+char *user;
+char *user_home;
+int user_home_len;
+char cwd[PATH_MAX]; // Create a buffer to store the current working directory
 void print_history() {
     for (int i = history_index - 1; (i >= history_index - 10) && (i >= 0); i--) {
         printf("%d:%s\n", i + 1, history_buffer[i % 10]);
     }
 }
 
+int execCD(char *path) {
+    if (path)
+        return chdir(path); // Change to provided directory
+    return chdir(user_home);  // Change to home directory
+}
+
 int main(int argc, char *argv[]) {
-    char *binary_path = "/usr/bin";
-    char *user = getenv("USER"); // Get the current user's name
-    char *user_home = getenv("HOME");
-    int user_home_len = (int) strlen(user_home);
-    char cwd[PATH_MAX]; // Create a buffer to store the current working directory
     struct utsname device_buffer;
     int device_return = uname(&device_buffer);
+    binary_path = "/usr/bin";
+    user = getenv("USER"); // Get the current user's name
+    user_home = getenv("HOME");
+    user_home_len = (int) strlen(user_home);
 
     if (argc == 2) {
         binary_path = argv[1];
@@ -48,11 +57,11 @@ int main(int argc, char *argv[]) {
     if (dup2(STDOUT_FILENO, STDERR_FILENO) == -1)
         perror("dup2 failed!");
 
+    if (getcwd(cwd, sizeof(cwd)) == NULL) { // Get the current working directory
+        fprintf(stderr, "Unable to determine current working directory.\n");
+        exit(EXIT_FAILURE);
+    }
     while (1) {
-        if (getcwd(cwd, sizeof(cwd)) == NULL) { // Get the current working directory
-            fprintf(stderr, "Unable to determine current working directory.\n");
-            exit(EXIT_FAILURE);
-        }
 
         // Took inspiration from Kali's terminal because it looks nice
         if (strncmp(cwd, user_home, user_home_len) == 0) {
@@ -104,7 +113,7 @@ int main(int argc, char *argv[]) {
             }
 
             char *index = token;
-            while (*index != '\0') {
+            while (*index != '\0') { // TODO Implement symbols
                 if (*index == '*' || *index == '&' || *index == '|' || *index == '>') {
                     valid = *index;
                 }
@@ -120,16 +129,16 @@ int main(int argc, char *argv[]) {
         if (valid) // No other way I could see to break out of the inner while loop then continue to the next iteration
             continue;
 
-        if (strcmp(args[0], "cd") == 0) { // Check and handle if cd internal call
-            int perm;
-            if (!args[1]) {
-                perm = chdir(user_home);  // Change to home directory
-            } else {
-                perm = chdir(args[1]); // Change to provided directory
-            }
-
+        if (strcmp(args[0], "cd") == 0) { // Check if cd internal call
+            int perm = execCD(args[1]);
             if (perm == -1) {
                 perror("chdir");
+            } else {
+                if (!args[1]) {
+                    strcpy(cwd, "~");
+                } else {
+                    strcpy(cwd, args[1]);
+                }
             }
             continue;
         }
