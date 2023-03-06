@@ -37,7 +37,10 @@ int main(int argc, char *argv[]) {
     if (DEBUG)
         printf("Enter a command (or type \"quit\" to quit)\n");
 
-    dup2(STDOUT_FILENO, STDERR_FILENO); // Pipe to redirect stderr to stdout and synchronize the streams
+    // Pipe to redirect stderr to stdout and synchronize the stream
+    if (dup2(STDOUT_FILENO, STDERR_FILENO) == -1) {
+        perror("dup2 failed!");
+    }
 
     while (1) {
         if (getcwd(cwd, sizeof(cwd)) == NULL) { // Get the current working directory
