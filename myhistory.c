@@ -1,15 +1,20 @@
 #include <stdio.h>
+
 #include <stdlib.h>
+
 #include <string.h>
+
 #include <unistd.h>
+
 #include <limits.h>
+
 #include <sys/wait.h>
+
 #include <sys/utsname.h>
+
 #include <errno.h>
 
 #define MAX_PATH_LENGTH 1024
-#define DEBUG 0
-
 
 char input_buffer[80];
 char history_buffer[10][80];
@@ -19,8 +24,10 @@ char *user;
 char *user_home;
 int user_home_len;
 char cwd[PATH_MAX]; // Create a buffer to store the current working directory
+
 void print_history() {
-    for (int i = history_index - 1; (i >= history_index - 10) && (i >= 0); i--) {
+    for (int i = history_index - 1;
+         (i >= history_index - 10) && (i >= 0); i--) {
         printf("%d:%s\n", i + 1, history_buffer[i % 10]);
     }
 }
@@ -28,7 +35,7 @@ void print_history() {
 int execCD(char *path) {
     if (path)
         return chdir(path); // Change to provided directory
-    return chdir(user_home);  // Change to home directory
+    return chdir(user_home); // Change to home directory
 }
 
 int main(int argc, char *argv[]) {
@@ -58,11 +65,11 @@ int main(int argc, char *argv[]) {
         perror("dup2 failed!");
 
     if (getcwd(cwd, sizeof(cwd)) == NULL) { // Get the current working directory
-        fprintf(stderr, "Unable to determine current working directory.\n");
+        fprintf(stderr, "Unable to determine current working directory!\n");
         exit(EXIT_FAILURE);
     }
-    while (1) {
 
+    while (1) {
         // Took inspiration from Kali's terminal because it looks nice
         if (strncmp(cwd, user_home, user_home_len) == 0) {
             printf("┌──(%s@%s)-《~%s》\n└─$ ", user, device_buffer.nodename, &cwd[user_home_len]);
@@ -87,7 +94,7 @@ int main(int argc, char *argv[]) {
         char *token = strtok(input_buffer, " ");
 
         if (token == NULL) {
-            fprintf(stderr, "ERROR: no command specified\n");
+            fprintf(stderr, "Error: No command specified\n");
             continue;
         }
 
@@ -96,19 +103,21 @@ int main(int argc, char *argv[]) {
         int result = snprintf(command_path, MAX_PATH_LENGTH, "%s/%s", binary_path, token);
 
         if (result >= MAX_PATH_LENGTH) {
-            fprintf(stderr, "ERROR: command path too long\n");
+            fprintf(stderr, "Error: Command path too long\n");
             continue;
         }
 
         // Construct the argument list for the command executable
-        char *args[10] = {NULL};
+        char *args[10] = {
+                NULL
+        };
         int i = 0;
 
         args[i++] = token;
         char valid = 0;
         while ((token = strtok(NULL, " ")) != NULL) {
             if (i > 10) {
-                fprintf(stderr, "ERROR: Too many arguments\n");
+                fprintf(stderr, "Error: Too many arguments\n");
                 break;
             }
 
@@ -120,7 +129,7 @@ int main(int argc, char *argv[]) {
                 index++;
             }
             if (valid) {
-                fprintf(stderr, "ERROR: Illegal character \'%c\'\n", valid);
+                fprintf(stderr, "Error: Illegal character \'%c\'\n", valid);
                 break;
             }
             args[i++] = token;
@@ -132,7 +141,7 @@ int main(int argc, char *argv[]) {
         if (strcmp(args[0], "cd") == 0) { // Check if cd internal call
             int perm = execCD(args[1]);
             if (perm == -1) {
-                perror("chdir");
+                perror("cd");
             } else {
                 if (!args[1]) {
                     strcpy(cwd, "~");
@@ -145,19 +154,18 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(args[0], "pwd") == 0) {
             if (getcwd(cwd, sizeof(cwd)) == NULL) { // Get the current working directory
-                fprintf(stderr, "Unable to determine current working directory.\n");
+                fprintf(stderr, "Unable to determine current working directory!\n");
                 exit(EXIT_FAILURE);
             }
             printf("%s\n", cwd);
             continue;
         }
 
-
         // Fork to execute the command since it's not a basic syscall
         pid_t pid = fork();
 
         if (pid == -1) {
-            fprintf(stderr, "Failed to execute fork command\n");
+            fprintf(stderr, "Failed to execute fork command!\n");
             exit(EXIT_FAILURE);
         }
 
@@ -165,19 +173,12 @@ int main(int argc, char *argv[]) {
             int status = execv(command_path, args);
 
             if (status == -1) {
-                fprintf(stderr, "%s: command not found\n", args[0]);
+                fprintf(stderr, "%s: Command not found\n", args[0]);
                 exit(EXIT_FAILURE);
             }
         } else {
             int status;
             waitpid(pid, &status, 0);
-            if (DEBUG) {
-                if (WIFEXITED(status)) {
-                    printf("Child process exited with status %d\n", WEXITSTATUS(status));
-                } else if (WIFSIGNALED(status)) {
-                    printf("Child process terminated by signal %d\n", WTERMSIG(status));
-                }
-            }
         }
     }
 }
