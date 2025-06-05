@@ -80,13 +80,13 @@ int main(int argc, char *argv[]) {
         }
 
         // Construct the argument list for the command executable
-        char *args[10] = {NULL};
+        char *args[11] = {NULL};
         int i = 0;
 
         args[i++] = token;
         char valid = 0;
         while ((token = strtok(NULL, " ")) != NULL) {
-            if (i > 10) {
+            if (i >= 10) {
                 fprintf(stderr, "ERROR: Too many arguments\n");
                 break;
             }
