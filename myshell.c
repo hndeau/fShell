@@ -6,6 +6,8 @@
 #include <sys/wait.h>
 #include <sys/utsname.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 #define MAX_PATH_LENGTH 1024
 #define DEBUG 0
@@ -14,6 +16,11 @@ int main(int argc, char *argv[]) {
     char input_buffer[80];
     char *binary_path = "/usr/bin";
     char *user = getenv("USER"); // Get the current user's name
+    if (user == NULL) {
+        struct passwd *pw = getpwuid(getuid());
+        if (pw != NULL)
+            user = pw->pw_name;
+    }
     char *user_home = getenv("HOME");
     int user_home_len = (int) strlen(user_home);
     char cwd[PATH_MAX]; // Create a buffer to store the current working directory

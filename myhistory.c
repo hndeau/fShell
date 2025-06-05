@@ -11,6 +11,8 @@
 #include <sys/wait.h>
 
 #include <sys/utsname.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 #define MAX_PATH_LENGTH 1024
 
@@ -41,6 +43,11 @@ int main(int argc, char *argv[]) {
     int device_return = uname(&device_buffer);
     binary_path = "/usr/bin";
     user = getenv("USER"); // Get the current user's name
+    if (user == NULL) {
+        struct passwd *pw = getpwuid(getuid());
+        if (pw != NULL)
+            user = pw->pw_name;
+    }
     user_home = getenv("HOME");
     user_home_len = (int) strlen(user_home);
 
